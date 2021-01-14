@@ -1,0 +1,54 @@
+import java.text.DecimalFormat
+fun main() {
+  println("Enter the number of rows:")
+  val rows = readLine()!!.toInt()
+  println("Enter the number of seats in each row:")
+  val cols = readLine()!!.toInt()
+  val cinema: Array<Array<String>> = Array(rows) { Array(cols) { "S" } }
+  do {
+    var cont = true
+    print("\n1. Show the seats\n2. Buy a ticket\n3. Statistics\n0. Exit")
+    when (readLine()!!.toInt()) {
+      1 -> show(cinema)
+      2 -> buy(cinema)
+      3 -> stats(cinema, rows, cols) 
+      else -> cont = false
+    }
+  } while (cont)
+}
+fun show(cinema: Array<Array<String>>) {
+  print("\nCinema:\n ")
+  for (i in 1..cinema[0].size) print(" $i")
+  for (i in cinema.indices) { print("\n${i + 1} " + cinema[i].joinToString(" ")) }
+}
+fun buy(cinema: Array<Array<String>>): Array<Array<String>> {
+  do {
+    println("" + "\nEnter a row number:")
+    val rw = readLine()!!.toInt()
+    println("Enter a seat number in that row:")
+    val cl = readLine()!!.toInt()
+    var cont = true
+    if (rw !in 1..cinema.size || cl !in 1..cinema[0].size)  { 
+      println("" + "\nWrong input!") 
+    } else if (cinema[rw - 1][cl - 1] == "B") {
+      println("" + "\nThat ticket has already been purchased!") 
+    } else {
+      cont = false
+      val price = if (cinema.size * cinema[0].size < 60 || rw <= cinema.size / 2) 10 else 8
+      println("" + "\nTicket price: \$$price")
+      cinema[rw - 1][cl - 1] = "B"
+    }
+  } while (cont)
+  return cinema
+}
+fun stats(cinema: Array<Array<String>>, rows: Int, cols: Int) {
+  var (rev, cnt) = arrayOf(0, 0)
+  for (i in cinema.indices) {
+    if (rows * cols < 60 || i < rows / 2) {
+      cinema[i].forEach { if (it == "B") {rev += 10; cnt++ } } 
+    } else { cinema[i].forEach { if (it == "B") { rev += 8; cnt++ } } }
+  }
+  val percentage = DecimalFormat("#0.00").format(cnt.toDouble() * 100 /  (rows * cols))
+  val total = if (rows * cols > 60) (rows / 2) * cols * 10 + (rows - rows / 2) * cols * 8 else rows * cols * 10 
+  println("Number of purchased tickets: $cnt\nPercentage: $percentage%\nCurrent income: \$$rev\nTotal income: \$$total")
+}
